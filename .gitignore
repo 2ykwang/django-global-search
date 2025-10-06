@@ -4,7 +4,6 @@ db.sqlite3
 docker/mysql/data
 docker/app/log
 *.pyc
-media/
 collected_static/
 __pycache__/
 
