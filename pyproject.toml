@@ -1,6 +1,6 @@
 [project]
 name = "django-global-search"
-version = "0.0.4"
+version = "0.0.5"
 description = "Global search for Django Admin, search across all registered models with permissions and search_fields support"
 readme = "README.md"
 authors = [
@@ -9,6 +9,22 @@ authors = [
 requires-python = ">=3.9"
 dependencies = [
     "django>=4.2",
+]
+license = { text = "MIT" }
+keywords = ["django", "search", "admin", "global"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1",
+    "Framework :: Django :: 5.2",
+    "License :: OSI Approved :: MIT License",
 ]
 
 [build-system]
