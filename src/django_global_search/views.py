@@ -7,14 +7,17 @@ from dataclasses import asdict, dataclass
 
 from django.apps import apps
 from django.contrib.admin.sites import AdminSite
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
 from django.views import View
 
 from django_global_search.searcher import GlobalSearch, GlobalSearchResult, ModelSearchResult
 
 
+@method_decorator(staff_member_required, name="dispatch")
 class GlobalSearchView(View):
     """Global Search View."""
 
@@ -68,7 +71,7 @@ class GlobalSearchView(View):
         # Build context
         context = self.SearchContext(
             query=query,
-            apps_data=self._get_apps_data(admin_site),
+            apps_data=self._get_apps_data(request, admin_site),
             selected_content_type_ids=selected_ct_ids,
             search_results=[],
             elapsed_time=None,
@@ -76,7 +79,7 @@ class GlobalSearchView(View):
         )
 
         # Execute search if query is provided
-        if query and admin_site:
+        if query:
             try:
                 searcher = GlobalSearch(admin_site)
                 result = searcher.search(
@@ -134,15 +137,17 @@ class GlobalSearchView(View):
         except ValueError:
             return []
 
-    def _get_apps_data(self, admin_site: AdminSite):
+    def _get_apps_data(self, request: HttpRequest, admin_site: AdminSite):
         """Get apps and models data for sidebar."""
-        if not admin_site:
-            return {}
+        searcher = GlobalSearch(admin_site)
+        searchable_admins = searcher.get_searchable_model_admins(request)
 
+        # Build apps data from searchable models
         # {app_label: {"verbose_name": "", "models": []}}
         apps_data = defaultdict(lambda: {"verbose_name": "", "models": []})
 
-        for model, _ in admin_site._registry.items():
+        for model_admin in searchable_admins:
+            model = model_admin.model
             app_label = model._meta.app_label
             app_config = apps.get_app_config(app_label)
 
@@ -159,5 +164,5 @@ class GlobalSearchView(View):
                 }
             )
 
-        # Return in app_label alphabetical order (apps are sorted)
+        # Return in app_label alphabetical order
         return dict(sorted(apps_data.items()))

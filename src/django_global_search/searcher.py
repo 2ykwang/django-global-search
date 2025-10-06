@@ -15,6 +15,7 @@ from django.db.models import Model
 from django.urls import reverse
 
 from django_global_search.admin import GlobalSearchAdminSiteMixin
+from django_global_search.permissions import filter_searchable_models
 from django_global_search.settings import GlobalSearchAdminSiteSettings
 
 if TYPE_CHECKING:
@@ -101,7 +102,7 @@ class GlobalSearch:
         timeout_seconds = self.settings.search_timeout_ms / 1000.0
 
         # Get searchable model admins
-        model_admins = self._get_searchable_model_admins(request, content_type_ids)
+        model_admins = self.get_searchable_model_admins(request, content_type_ids)
 
         # Group results by app_label
         search_results_by_app_label: dict[str, list[ModelSearchResult]] = defaultdict(list)
@@ -147,41 +148,16 @@ class GlobalSearch:
             is_timeout=False,
         )
 
-    def _get_searchable_model_admins(
+    def get_searchable_model_admins(
         self, request: HttpRequest, content_type_ids: list[int] | None = None
     ) -> list[ModelAdmin]:
         """Get list of searchable ModelAdmin instances."""
-        searchable_admins = []
-
-        selected_content_type_ids = set(content_type_ids) if content_type_ids else None
-
-        for model, model_admin in self.admin_site._registry.items():
-            # Check model has search_fields
-            if not getattr(model_admin, "search_fields", None):
-                continue
-
-            # Check module permission
-            if not model_admin.has_module_permission(request):
-                continue
-
-            # Check view permission
-            if not model_admin.has_view_permission(request):
-                continue
-
-            # Check excluded models
-            model_label = f"{model._meta.app_label}.{model._meta.model_name}"
-            if model_label in self.settings.excluded_models:
-                continue
-
-            # Filter by content_type_ids if provided
-            if selected_content_type_ids:
-                content_type = ContentType.objects.get_for_model(model)
-                if content_type.id not in selected_content_type_ids:
-                    continue
-
-            searchable_admins.append(model_admin)
-
-        return searchable_admins
+        return filter_searchable_models(
+            request=request,
+            admin_registry=self.admin_site._registry,
+            excluded_models=self.settings.excluded_models,
+            content_type_ids=content_type_ids,
+        )
 
     def _search_model(
         self,
