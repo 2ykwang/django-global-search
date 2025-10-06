@@ -3,6 +3,7 @@
 <aside class="sidebar">
     <h2>{% trans "Search in" %}</h2>
     <form method="get" id="model-selection-form">
+        <input type="hidden" name="content_type" id="content-type-input" value="">
         <div class="sidebar-actions">
             <button type="button" id="select-all" class="button default">{% trans "Select All" %}</button>
             <button type="button" id="deselect-all" class="button default">{% trans "Deselect All" %}</button>
@@ -11,7 +12,7 @@
         {% if query %}
             <input type="hidden" name="q" value="{{ query }}">
         {% endif %}
-         
+
         {% for app_label, app_data in apps_data.items %}
             <div class="app-group">
                 <div class="app-header">
