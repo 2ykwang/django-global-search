@@ -60,21 +60,24 @@ const State = {
 
 class GlobalSearchUI {
     constructor() {
+        this.appsInput = document.getElementById('apps-input');
         this.contentTypeInput = document.getElementById('content-type-input');
+        this.searchAppsInput = document.getElementById('search-apps-input');
+        this.searchContentTypeInput = document.getElementById('search-content-type-input');
         this.searchForm = document.getElementById('search-form');
         this.modelSelectionForm = document.getElementById('model-selection-form');
 
-        if (!this.contentTypeInput || !this.searchForm || !this.modelSelectionForm) {
+        if (!this.appsInput || !this.contentTypeInput || !this.searchForm || !this.modelSelectionForm) {
             return;
         }
-        
+
         this.init();
     }
 
     init() {
         this.restoreState();
         this.updateAppCheckboxStates();
-        this.updateContentTypeInput();
+        this.updateFormParams();
         this.attachEventListeners();
     }
 
@@ -151,21 +154,21 @@ class GlobalSearchUI {
     handleAppCheckbox(e) {
         const app = e.target.dataset.app;
         const checked = e.target.checked;
-        
+
         this.getModelCheckboxes(app).forEach(cb => cb.checked = checked);
-        this.updateContentTypeInput();
+        this.updateFormParams();
     }
 
     handleModelCheckbox() {
         this.updateAppCheckboxStates();
-        this.updateContentTypeInput();
+        this.updateFormParams();
     }
 
     selectAll() {
         document.querySelectorAll('.app-checkbox, .model-checkbox')
             .forEach(cb => cb.checked = true);
         this.updateAppCheckboxStates();
-        this.updateContentTypeInput();
+        this.updateFormParams();
     }
 
     deselectAll() {
@@ -173,7 +176,7 @@ class GlobalSearchUI {
             .forEach(cb => cb.checked = false);
         document.querySelectorAll('.app-checkbox')
             .forEach(cb => cb.indeterminate = false);
-        this.updateContentTypeInput();
+        this.updateFormParams();
     }
 
     updateAppCheckboxStates() {
@@ -195,9 +198,29 @@ class GlobalSearchUI {
         });
     }
 
-    updateContentTypeInput() {
-        const selected = this.getCheckedModelIds();
-        this.contentTypeInput.value = selected.join(',');
+    updateFormParams() {
+        const checkedModelsByApp = this.getCheckedModelsByApp();
+
+        const fullApps = [];
+        const partialModels = [];
+
+        for (const [app, modelIds] of Object.entries(checkedModelsByApp)) {
+            const totalModels = this.getTotalModelsInApp(app);
+
+            if (modelIds.length === totalModels) {
+                // All models in this app are selected -> use 'apps' parameter
+                fullApps.push(app);
+            } else if (modelIds.length > 0) {
+                // Only some models selected -> use 'content_type' parameter
+                partialModels.push(...modelIds);
+            }
+        }
+
+        // Update both sidebar form and search form
+        this.appsInput.value = fullApps.join(',');
+        this.contentTypeInput.value = partialModels.join(',');
+        this.searchAppsInput.value = fullApps.join(',');
+        this.searchContentTypeInput.value = partialModels.join(',');
     }
 
     // Save to localStorage when search button is clicked
@@ -213,6 +236,26 @@ class GlobalSearchUI {
     getCheckedModelIds() {
         return Array.from(document.querySelectorAll('.model-checkbox:checked'))
             .map(cb => cb.value);
+    }
+
+    getCheckedModelsByApp() {
+        const modelsByApp = {};
+
+        document.querySelectorAll('.model-checkbox:checked').forEach(cb => {
+            const app = cb.dataset.app;
+            const modelId = cb.value;
+
+            if (!modelsByApp[app]) {
+                modelsByApp[app] = [];
+            }
+            modelsByApp[app].push(modelId);
+        });
+
+        return modelsByApp;
+    }
+
+    getTotalModelsInApp(app) {
+        return document.querySelectorAll(`.model-checkbox[data-app="${app}"]`).length;
     }
 }
 

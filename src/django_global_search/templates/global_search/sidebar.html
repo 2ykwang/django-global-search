@@ -3,6 +3,7 @@
 <aside class="sidebar">
     <h2>{% trans "Search in" %}</h2>
     <form method="get" id="model-selection-form">
+        <input type="hidden" name="apps" id="apps-input" value="">
         <input type="hidden" name="content_type" id="content-type-input" value="">
         <div class="sidebar-actions">
             <button type="button" id="select-all" class="button default">{% trans "Select All" %}</button>
@@ -29,8 +30,7 @@
                 <div class="models-list" data-app="{{ app_label }}">
                     {% for model in app_data.models %}
                         <div class="model-item">
-                            <input type="checkbox" 
-                                   name="content_type_checkbox" 
+                            <input type="checkbox"
                                    value="{{ model.content_type_id }}"
                                    id="model-{{ model.content_type_id }}"
                                    class="model-checkbox"

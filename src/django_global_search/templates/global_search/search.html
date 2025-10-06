@@ -28,7 +28,8 @@
                            placeholder="{% trans 'Enter search terms...' %}"
                            class="search-input"
                            autofocus>
-                    <input type="hidden" name="content_type" id="content-type-input" value="{{ selected_content_type_ids|join:',' }}">
+                    <input type="hidden" name="apps" id="search-apps-input" value="">
+                    <input type="hidden" name="content_type" id="search-content-type-input" value="">
                     <button type="submit" class="button default">{% trans "Search" %}</button>
                 </div>
             </form>

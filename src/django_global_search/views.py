@@ -133,14 +133,39 @@ class GlobalSearchView(View):
         )
 
     def _get_selected_content_type_ids(self, request: HttpRequest):
-        content_types_param = request.GET.get("content_type", "")
-        if not content_types_param:
-            return []
+        content_type_ids = set()
 
-        try:
-            return [int(cid) for cid in content_types_param.split(",") if cid]
-        except ValueError:
-            return []
+        # Process 'apps' parameter (select all models in the app)
+        apps_param = request.GET.get("apps", "")
+        if apps_param:
+            app_labels = [a.strip() for a in apps_param.split(",") if a.strip()]
+            for app_label in app_labels:
+                content_type_ids.update(self._get_content_type_ids_for_app(request, app_label))
+
+        # Process 'content_type' parameter (individual model selection)
+        content_types_param = request.GET.get("content_type", "")
+        if content_types_param:
+            try:
+                ids = [int(cid) for cid in content_types_param.split(",") if cid]
+                content_type_ids.update(ids)
+            except ValueError:
+                pass
+
+        return list(content_type_ids) if content_type_ids else []
+
+    def _get_content_type_ids_for_app(self, request: HttpRequest, app_label: str) -> list[int]:
+        """Get all searchable content type IDs for a given app."""
+        searcher = GlobalSearch(self.admin_site)
+        searchable_admins = searcher.get_searchable_model_admins(request)
+
+        content_type_ids = []
+        for model_admin in searchable_admins:
+            model = model_admin.model
+            if model._meta.app_label == app_label:
+                content_type = ContentType.objects.get_for_model(model)
+                content_type_ids.append(content_type.id)
+
+        return content_type_ids
 
     def _get_apps_data(self, request: HttpRequest, admin_site: AdminSite):
         """Get apps and models data for sidebar."""
