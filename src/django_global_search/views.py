@@ -99,7 +99,12 @@ class GlobalSearchView(View):
             except Exception:
                 context.error_message = "Search error"
 
-        return render(request, self.template_name, asdict(context))
+        # Merge with admin site context for proper URL resolution
+        template_context = {
+            **self.admin_site.each_context(request),
+            **asdict(context),
+        }
+        return render(request, self.template_name, template_context)
 
     def _convert_search_results(self, result: GlobalSearchResult) -> list[AppResultContext]:
         return [

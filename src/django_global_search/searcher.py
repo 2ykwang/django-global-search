@@ -228,7 +228,11 @@ class GlobalSearch:
         app_label = obj._meta.app_label
         model_name = obj._meta.model_name
 
-        return reverse(f"{admin_site_name}:{app_label}_{model_name}_change", args=[obj.pk])
+        return reverse(
+            f"admin:{app_label}_{model_name}_change",
+            args=[obj.pk],
+            current_app=admin_site_name,
+        )
 
     def _get_changelist_url(self, model_admin: ModelAdmin, query: str) -> str | None:
         """Get admin changelist URL with search query."""
@@ -237,10 +241,10 @@ class GlobalSearch:
         admin_site_name = self.admin_site.name
         app_label = model._meta.app_label
         model_name = model._meta.model_name
-        viewname = f"{admin_site_name}:{app_label}_{model_name}_changelist"
+        viewname = f"admin:{app_label}_{model_name}_changelist"
 
         try:
-            base_url = reverse(viewname)
+            base_url = reverse(viewname, current_app=admin_site_name)
         except Exception:
             return None
         else:
