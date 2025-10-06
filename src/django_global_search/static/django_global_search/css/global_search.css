@@ -1,0 +1,261 @@
+/* Global Search - Django Admin 표준 스타일 준수 */
+
+.search-container {
+    display: flex;
+    gap: 20px;
+    min-height: 70vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 320px;
+    background: var(--body-bg);
+    border: 1px solid var(--border-color);
+    padding: 16px;
+    height: fit-content;
+}
+
+.sidebar h2 {
+    margin: 0 0 16px 0;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--body-fg);
+}
+
+.app-group {
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--body-bg);
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--darkened-bg);
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+.app-header input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.app-header label {
+    flex: 1;
+    margin: 0;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--body-fg);
+}
+
+.app-count {
+    color: var(--body-quiet-color);
+    font-size: 10px;
+    margin-left: 4px;
+    font-weight: normal;
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    font-size: 10px;
+    cursor: pointer;
+    padding: 2px 6px;
+    color: var(--body-quiet-color);
+}
+
+.models-list {
+    padding: 0;
+}
+
+.models-list.is-collapsed {
+    display: none;
+}
+
+.model-item {
+    padding: 4px 16px;
+    display: flex;
+    align-items: center;
+}
+
+.model-item input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.model-item label {
+    margin: 0;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--body-fg);
+}
+
+.sidebar-actions {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Sidebar buttons use Django default button styles */
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.search-header {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.search-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-input-group {
+    display: flex;
+    width: 100%;
+    max-width: 600px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    background: var(--body-bg);
+    color: var(--body-fg);
+    font-size: 14px;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: var(--focus-color, var(--accent));
+}
+
+/* Search button uses Django default button styles */
+
+/* Search Results */
+.search-results {
+    line-height: 1.5;
+}
+
+/* Error messages use Django errornote class */
+
+.results-header {
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 12px;
+    color: var(--body-fg);
+    font-weight: bold;
+}
+
+.elapsed-time {
+    color: var(--body-quiet-color);
+    margin-left: 8px;
+    font-weight: normal;
+}
+
+.no-query {
+    text-align: center;
+    color: var(--body-quiet-color);
+    font-style: italic;
+    margin-top: 60px;
+}
+
+.app-results {
+    margin-bottom: 20px;
+}
+
+.app-results h2 {
+    font-size: 13px;
+    font-weight: bold;
+    margin: 0;
+    color: var(--body-fg);
+    text-transform: uppercase;
+}
+
+.model-results {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--darkened-bg);
+    border-left: 3px solid var(--selected-bg);
+}
+
+.model-results h3 {
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+    color: var(--body-fg);
+}
+
+.model-count {
+    background: var(--selected-bg);
+    color: var(--body-fg);
+    padding: 2px 6px;
+    font-size: 10px;
+    margin-left: 8px;
+    font-weight: normal;
+}
+
+.results-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 8px 0;
+}
+
+.result-item {
+    padding: 2px 0;
+}
+
+.result-item a {
+    color: var(--link-fg);
+    text-decoration: none;
+    font-size: 11px;
+}
+
+.result-item a:hover {
+    color: var(--link-hover-color);
+    text-decoration: underline;
+}
+
+.more-link {
+    margin-top: 8px;
+}
+
+.more-link a {
+    color: var(--body-quiet-color);
+    font-size: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.more-link a:hover {
+    color: var(--link-fg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .search-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .search-input-group {
+        max-width: 100%;
+    }
+}

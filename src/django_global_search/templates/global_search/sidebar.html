@@ -1,0 +1,48 @@
+{% load i18n %}
+
+<aside class="sidebar">
+    <h2>{% trans "Search in" %}</h2>
+    <form method="get" id="model-selection-form">
+        <div class="sidebar-actions">
+            <button type="button" id="select-all" class="button default">{% trans "Select All" %}</button>
+            <button type="button" id="deselect-all" class="button default">{% trans "Deselect All" %}</button>
+            <button type="submit" class="button default">{% trans "Apply" %}</button>
+        </div>
+        {% if query %}
+            <input type="hidden" name="q" value="{{ query }}">
+        {% endif %}
+         
+        {% for app_label, app_data in apps_data.items %}
+            <div class="app-group">
+                <div class="app-header">
+                    <input type="checkbox" 
+                           id="app-{{ app_label }}" 
+                           class="app-checkbox"
+                           data-app="{{ app_label }}">
+                    <label for="app-{{ app_label }}">
+                        <strong>{{ app_data.verbose_name }}</strong>
+                    </label>
+                    <button type="button" class="toggle-btn" data-app="{{ app_label }}">▼</button>
+                </div>
+                
+                <div class="models-list" data-app="{{ app_label }}">
+                    {% for model in app_data.models %}
+                        <div class="model-item">
+                            <input type="checkbox" 
+                                   name="content_type_checkbox" 
+                                   value="{{ model.content_type_id }}"
+                                   id="model-{{ model.content_type_id }}"
+                                   class="model-checkbox"
+                                   data-app="{{ app_label }}"
+                                   {% if not selected_content_type_ids or model.content_type_id in selected_content_type_ids %}checked{% endif %}>
+                            <label for="model-{{ model.content_type_id }}">
+                                {{ model.verbose_name_plural }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </form>
+</aside>
+

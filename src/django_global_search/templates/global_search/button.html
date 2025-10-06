@@ -1,0 +1,13 @@
+{% load i18n %}
+<style>
+    .global-search-link {
+        padding: 5px 10px; 
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 12px;
+    } 
+</style>
+<a href="{% url 'admin:global_search' %}" class="global-search-link">
+    {% trans "Global Search" %}
+</a>
+

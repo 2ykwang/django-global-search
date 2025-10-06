@@ -1,0 +1,97 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Global Search" %}{% endblock %}
+
+{% block extrahead %}
+<link rel="stylesheet" type="text/css" href="{% static 'django_global_search/css/global_search.css' %}">
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; {% trans "Global Search" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    {% include 'global_search/sidebar.html' %}
+    
+    <main class="main-content">
+        <div class="search-header">
+            <form method="get" class="search-form" id="search-form">
+                <div class="search-input-group">
+                    <input type="text" 
+                           name="q" 
+                           value="{{ query }}" 
+                           placeholder="{% trans 'Enter search terms...' %}"
+                           class="search-input"
+                           autofocus>
+                    <input type="hidden" name="content_type" id="content-type-input" value="{{ selected_content_type_ids|join:',' }}">
+                    <button type="submit" class="button default">{% trans "Search" %}</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="search-results">
+            {% if error_message %}
+                <div class="errornote">
+                    <strong>{% trans "Error:" %}</strong> {{ error_message }}
+                </div>
+            {% elif query %}
+                <div class="results-header">
+                    {% if search_results %}
+                        {% blocktrans %}Search results for "{{ query }}"{% endblocktrans %}
+                    {% else %}
+                        {% blocktrans %}No results found for "{{ query }}"{% endblocktrans %}
+                    {% endif %}
+                    
+                    {% if elapsed_time %}
+                        <span class="elapsed-time">({{ elapsed_time }}s)</span>
+                    {% endif %}
+                </div>
+
+                {% if search_results %}
+                    {% for app_result in search_results %}
+                        <div class="module app-results">
+                            <h2>{{ app_result.app_verbose_name }}</h2>
+                            
+                            {% for model_result in app_result.models %}
+                                <div class="model-results">
+                                    <h3>{{ model_result.verbose_name_plural }}</h3>
+                                            
+                                            <ul class="results-list">
+                                                {% for result in model_result.items %}
+                                                    <li class="result-item">
+                                                        <a href="{{ result.url }}" target="_blank">
+                                                            {{ result.display_text }}
+                                                        </a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                            
+                                    {% if model_result.has_more and model_result.changelist_url %}
+                                        <div class="more-link">
+                                            <a href="{{ model_result.changelist_url }}" target="_blank">
+                                                {% trans "View all results" %} →
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% else %}
+                <div class="no-query">
+                    <p>{% trans "Enter a search query" %}</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+
+<script src="{% static 'django_global_search/js/global_search.js' %}"></script>
+{% endblock %}
+
