@@ -1,6 +1,7 @@
 """Global Search Admin."""
 
 from django.contrib import admin
+from django.urls import path
 
 from django_global_search.settings import GlobalSearchAdminSiteSettings
 
@@ -11,6 +12,21 @@ class GlobalSearchAdminSiteMixin:
     def get_global_search_settings(self):
         """Get Global Search Settings."""
         return GlobalSearchAdminSiteSettings.from_admin_site(self)
+
+    def get_urls(self):
+        """Get admin URLs with global search."""
+        from django_global_search.views import GlobalSearchView
+
+        urls = super().get_urls()
+
+        custom_urls = [
+            path(
+                "global-search/",
+                self.admin_view(GlobalSearchView.as_view(admin_site=self)),
+                name="global_search",
+            ),
+        ]
+        return custom_urls + urls
 
 
 def inject_default_admin_site():
