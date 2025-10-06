@@ -4,7 +4,6 @@ from django.apps import AppConfig
 from django.utils.translation import gettext_lazy as _
 
 from django_global_search.admin import inject_default_admin_site
-from django_global_search.settings import global_search_settings
 
 
 class DjangoGlobalSearchConfig(AppConfig):  # noqa: D101
@@ -13,6 +12,8 @@ class DjangoGlobalSearchConfig(AppConfig):  # noqa: D101
     verbose_name = _("Django Global Search")
 
     def ready(self):  # noqa: D102
+        from django_global_search.settings import global_search_settings
+
         if not global_search_settings.inject_default_admin_site_enabled:
             return
 
