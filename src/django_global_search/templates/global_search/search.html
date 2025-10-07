@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="search-container">
+<div class="search-container" data-search-success="{% if query and not error_message and search_results %}true{% else %}false{% endif %}">
     {% include 'global_search/sidebar.html' %}
     
     <main class="main-content">

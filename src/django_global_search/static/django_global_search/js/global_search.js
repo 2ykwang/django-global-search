@@ -136,8 +136,16 @@ class GlobalSearchUI {
         document.getElementById('deselect-all')
             .addEventListener('click', () => this.deselectAll());
 
-        // Save state when search form is submitted
-        this.searchForm.addEventListener('submit', () => this.saveState());
+        // Save state when search form is submitted (only if search is successful)
+        this.searchForm.addEventListener('submit', (e) => { 
+            const searchContainer = document.querySelector('.search-container');
+            const isSearchSuccessful = searchContainer && 
+                searchContainer.getAttribute('data-search-success') === 'true';
+            
+            if (isSearchSuccessful) {
+                this.saveState();
+            }
+        });
         
         // Save state when Apply button (model selection form) is submitted
         this.modelSelectionForm.addEventListener('submit', () => this.saveState());

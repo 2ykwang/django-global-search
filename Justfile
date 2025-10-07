@@ -14,7 +14,7 @@ lint:
 
 # Run ruff formatter
 format:
-    uv run ruff check --fix .
+    uv run ruff check --fix-only .
     uv run ruff format .
 
 # Serve documentation locally

@@ -12,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
+from django.utils.translation import gettext as _
 from django.views import View
 
 from django_global_search.searcher import GlobalSearch, GlobalSearchResult, ModelSearchResult
@@ -94,14 +95,14 @@ class GlobalSearchView(View):
                 context.elapsed_time = result.elapsed_time_ms / 1000.0
 
                 if result.is_timeout:
-                    context.error_message = "Search timeout exceeded. Please refine your query."
+                    context.error_message = _("Search timeout exceeded. Please refine your query.")
 
             except ValueError:
                 logger.exception("Invalid search query: %s", query)
-                context.error_message = "Invalid query"
+                context.error_message = _("Invalid query")
             except Exception:
                 logger.exception("Search error occurred for query: %s", query)
-                context.error_message = "Search error"
+                context.error_message = _("Search error")
 
         # Merge with admin site context for proper URL resolution
         template_context = {

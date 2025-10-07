@@ -13,6 +13,7 @@ from django.contrib.admin.sites import AdminSite
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from django_global_search.admin import GlobalSearchAdminSiteMixin
 from django_global_search.permissions import filter_searchable_models
@@ -96,7 +97,10 @@ class GlobalSearch:
         query = query.strip()
         min_query_length = self.settings.min_query_length
         if len(query) < min_query_length:
-            raise ValueError(f"Query must be at least {min_query_length} characters")  # noqa: TRY003
+            raise ValueError(
+                _("Query must be at least %(min_length)d characters")
+                % {"min_length": min_query_length}
+            )  # noqa: TRY003
 
         start_time = time.perf_counter()
         timeout_seconds = self.settings.search_timeout_ms / 1000.0
