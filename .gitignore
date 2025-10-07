@@ -7,18 +7,18 @@ docker/app/log
 collected_static/
 __pycache__/
 
-env/ 
+env/
 .DS_Store
- 
+
 .vscode
 
 ios/tests.py
 deploy.json
-
 .idea/
 
 dump.rdb
 debug.log
+coverage.xml
 
 *.ipynb
 .ipynb
@@ -29,6 +29,10 @@ venv
 robots.txt
 
 .coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
 *guide.md
 *CLAUDE.md
 sample_project/
