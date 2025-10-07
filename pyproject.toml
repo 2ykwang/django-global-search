@@ -49,6 +49,7 @@ dev = [
     "factory-boy>=3.3.3",
     "tox>=4.0.0",
     "pre-commit>=4.0.0",
+    "pyright>=1.1.390",
 ]
 
 [tool.ruff]
@@ -109,7 +110,7 @@ select = [
     "W",  # Warning
     "YTT", # flake8-2020
 ]
-ignore = []
+ignore = ["D102", "D106", "D105"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]

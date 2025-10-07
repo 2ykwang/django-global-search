@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 sys.path.insert(0, str(BASE_DIR / "src"))
 
-SECRET_KEY = "test-secret-key-for-django-global-search"
+SECRET_KEY = "test-secret-key-for-django-global-search"  # noqa: S105
 
 DEBUG = True
 
