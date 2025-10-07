@@ -40,5 +40,5 @@ jobs:
           flags: py${{ matrix.python-version }}
           name: py${{ matrix.python-version }}
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: 2ykwang/django-global-search 
+          slug: 2ykwang/django-global-search
           fail_ci_if_error: false

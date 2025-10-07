@@ -249,12 +249,12 @@
     .search-container {
         flex-direction: column;
     }
-    
+
     .sidebar {
         width: 100%;
         margin-bottom: 20px;
     }
-    
+
     .search-input-group {
         max-width: 100%;
     }

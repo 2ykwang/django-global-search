@@ -4,7 +4,7 @@
 
 !!! warning "Development"
     This project is in development and may introduce breaking changes in future releases.
-    
+
 ## Basic Setup
 
 ### 1. Install the Package

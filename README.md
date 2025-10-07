@@ -10,7 +10,7 @@
 A global search extension for Django Admin that allows searching across multiple models from a single page. Search through all registered models with permission handling and respect for existing `search_fields` configurations.
 
 Documentation can be found at https://django-global-search.readthedocs.io/
- 
+
 ## Installation
 
 Install using pip:
@@ -28,7 +28,7 @@ uv add django-global-search
 ## Usage
 
 ### Setup
- 
+
 ```python
 # settings.py
 INSTALLED_APPS = [
@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     # ... other apps
 ]
 ```
- 
+
 ### Adding a Navigation Button (Optional)
 
 ```html
@@ -93,4 +93,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Email: me@youngkwang.dev
 - Issues: [GitHub Issues](https://github.com/2ykwang/django-global-search/issues)
 - Documentation: [Read the Docs](https://django-global-search.readthedocs.io/)
-
