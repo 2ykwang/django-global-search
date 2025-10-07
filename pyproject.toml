@@ -37,11 +37,15 @@ dev = [
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.5.47",
     "mkdocstrings[python]>=0.27.0",
+    "pytest>=8.4.2",
+    "pytest-django>=4.11.1",
+    "pytest-cov>=7.0.0",
+    "factory-boy>=3.3.3",
 ]
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
-include = ["pyproject.toml", "src/**/*.py", "tests/"]
+include = ["pyproject.toml", "src/**/*.py", "tests/**"]
 exclude = [
     ".bzr",
     ".direnv",
