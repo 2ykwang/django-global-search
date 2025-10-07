@@ -17,8 +17,8 @@
         {% for app_label, app_data in apps_data.items %}
             <div class="app-group">
                 <div class="app-header">
-                    <input type="checkbox" 
-                           id="app-{{ app_label }}" 
+                    <input type="checkbox"
+                           id="app-{{ app_label }}"
                            class="app-checkbox"
                            data-app="{{ app_label }}">
                     <label for="app-{{ app_label }}">
@@ -26,7 +26,7 @@
                     </label>
                     <button type="button" class="toggle-btn" data-app="{{ app_label }}">▼</button>
                 </div>
-                
+
                 <div class="models-list" data-app="{{ app_label }}">
                     {% for model in app_data.models %}
                         <div class="model-item">
@@ -46,4 +46,3 @@
         {% endfor %}
     </form>
 </aside>
-

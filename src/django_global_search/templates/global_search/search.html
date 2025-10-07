@@ -17,14 +17,14 @@
 {% block content %}
 <div class="search-container" data-search-success="{% if query and not error_message and search_results %}true{% else %}false{% endif %}">
     {% include 'global_search/sidebar.html' %}
-    
+
     <main class="main-content">
         <div class="search-header">
             <form method="get" class="search-form" id="search-form">
                 <div class="search-input-group">
-                    <input type="text" 
-                           name="q" 
-                           value="{{ query }}" 
+                    <input type="text"
+                           name="q"
+                           value="{{ query }}"
                            placeholder="{% trans 'Enter search terms...' %}"
                            class="search-input"
                            autofocus>
@@ -47,7 +47,7 @@
                     {% else %}
                         {% blocktrans %}No results found for "{{ query }}"{% endblocktrans %}
                     {% endif %}
-                    
+
                     {% if elapsed_time %}
                         <span class="elapsed-time">({{ elapsed_time }}s)</span>
                     {% endif %}
@@ -57,11 +57,11 @@
                     {% for app_result in search_results %}
                         <div class="module app-results">
                             <h2>{{ app_result.app_verbose_name }}</h2>
-                            
+
                             {% for model_result in app_result.models %}
                                 <div class="model-results">
                                     <h3>{{ model_result.verbose_name_plural }}</h3>
-                                            
+
                                             <ul class="results-list">
                                                 {% for result in model_result.items %}
                                                     <li class="result-item">
@@ -71,7 +71,7 @@
                                                     </li>
                                                 {% endfor %}
                                             </ul>
-                                            
+
                                     {% if model_result.has_more and model_result.changelist_url %}
                                         <div class="more-link">
                                             <a href="{{ model_result.changelist_url }}" target="_blank">
@@ -95,4 +95,3 @@
 
 <script src="{% static 'django_global_search/js/global_search.js' %}"></script>
 {% endblock %}
-

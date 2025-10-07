@@ -88,12 +88,12 @@ class GlobalSearchUI {
 
     restoreCollapseState() {
         const collapsed = State.getCollapsedApps();
-        
+
         document.querySelectorAll('.app-group').forEach(group => {
             const toggleBtn = group.querySelector('.toggle-btn');
             const app = toggleBtn.dataset.app;
             const modelsList = group.querySelector('.models-list');
-            
+
             if (collapsed[app]) {
                 modelsList.classList.add('is-collapsed');
                 toggleBtn.textContent = '▶';
@@ -137,16 +137,16 @@ class GlobalSearchUI {
             .addEventListener('click', () => this.deselectAll());
 
         // Save state when search form is submitted (only if search is successful)
-        this.searchForm.addEventListener('submit', (e) => { 
+        this.searchForm.addEventListener('submit', (e) => {
             const searchContainer = document.querySelector('.search-container');
-            const isSearchSuccessful = searchContainer && 
+            const isSearchSuccessful = searchContainer &&
                 searchContainer.getAttribute('data-search-success') === 'true';
-            
+
             if (isSearchSuccessful) {
                 this.saveState();
             }
         });
-        
+
         // Save state when Apply button (model selection form) is submitted
         this.modelSelectionForm.addEventListener('submit', () => this.saveState());
     }
@@ -154,7 +154,7 @@ class GlobalSearchUI {
     handleToggle(e) {
         const btn = e.target;
         const modelsList = btn.closest('.app-group').querySelector('.models-list');
-        
+
         modelsList.classList.toggle('is-collapsed');
         btn.textContent = modelsList.classList.contains('is-collapsed') ? '▶' : '▼';
     }
@@ -192,7 +192,7 @@ class GlobalSearchUI {
             const app = appCb.dataset.app;
             const modelCbs = this.getModelCheckboxes(app);
             const checkedCount = modelCbs.filter(cb => cb.checked).length;
-            
+
             if (checkedCount === 0) {
                 appCb.checked = false;
                 appCb.indeterminate = false;

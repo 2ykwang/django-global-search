@@ -17,6 +17,10 @@ format:
     uv run ruff check --fix-only .
     uv run ruff format .
 
+# Install pre-commit hooks
+pre-commit-install:
+    uv run pre-commit install
+
 # Serve documentation locally
 docs-serve:
     uv run mkdocs serve
@@ -50,4 +54,3 @@ i18n: makemessages compilemessages
 # Create translation files for a specific language
 create-locale lang:
     cd src/ && django-admin makemessages --add-location=file -l {{ lang }} --ignore=__pycache__ --ignore=migrations
-
