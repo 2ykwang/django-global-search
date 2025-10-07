@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
 from dataclasses import asdict, dataclass
 
 from django.apps import apps
-from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
@@ -15,6 +15,8 @@ from django.utils.decorators import method_decorator
 from django.views import View
 
 from django_global_search.searcher import GlobalSearch, GlobalSearchResult, ModelSearchResult
+
+logger = logging.getLogger(__name__)
 
 
 @method_decorator(staff_member_required, name="dispatch")
@@ -65,13 +67,14 @@ class GlobalSearchView(View):
     def get(self, request, *args, **kwargs):
         """Handle GET request."""
         query = request.GET.get("q", "").strip()
-        selected_ct_ids = self._get_selected_content_type_ids(request)
         admin_site = self.admin_site
+        searcher = GlobalSearch(admin_site)
+        selected_ct_ids = self._get_selected_content_type_ids(request, searcher)
 
         # Build context
         context = self.SearchContext(
             query=query,
-            apps_data=self._get_apps_data(request, admin_site),
+            apps_data=self._get_apps_data(request, searcher),
             selected_content_type_ids=selected_ct_ids,
             search_results=[],
             elapsed_time=None,
@@ -81,7 +84,6 @@ class GlobalSearchView(View):
         # Execute search if query is provided
         if query:
             try:
-                searcher = GlobalSearch(admin_site)
                 result = searcher.search(
                     request=request,
                     query=query,
@@ -95,8 +97,10 @@ class GlobalSearchView(View):
                     context.error_message = "Search timeout exceeded. Please refine your query."
 
             except ValueError:
+                logger.exception("Invalid search query: %s", query)
                 context.error_message = "Invalid query"
             except Exception:
+                logger.exception("Search error occurred for query: %s", query)
                 context.error_message = "Search error"
 
         # Merge with admin site context for proper URL resolution
@@ -132,7 +136,7 @@ class GlobalSearchView(View):
             ],
         )
 
-    def _get_selected_content_type_ids(self, request: HttpRequest):
+    def _get_selected_content_type_ids(self, request: HttpRequest, searcher: GlobalSearch):
         content_type_ids = set()
 
         # Process 'apps' parameter (select all models in the app)
@@ -140,7 +144,9 @@ class GlobalSearchView(View):
         if apps_param:
             app_labels = [a.strip() for a in apps_param.split(",") if a.strip()]
             for app_label in app_labels:
-                content_type_ids.update(self._get_content_type_ids_for_app(request, app_label))
+                content_type_ids.update(
+                    self._get_content_type_ids_for_app(request, app_label, searcher)
+                )
 
         # Process 'content_type' parameter (individual model selection)
         content_types_param = request.GET.get("content_type", "")
@@ -153,24 +159,35 @@ class GlobalSearchView(View):
 
         return list(content_type_ids) if content_type_ids else []
 
-    def _get_content_type_ids_for_app(self, request: HttpRequest, app_label: str) -> list[int]:
+    def _get_content_type_ids_for_app(
+        self, request: HttpRequest, app_label: str, searcher: GlobalSearch
+    ) -> list[int]:
         """Get all searchable content type IDs for a given app."""
-        searcher = GlobalSearch(self.admin_site)
         searchable_admins = searcher.get_searchable_model_admins(request)
 
-        content_type_ids = []
-        for model_admin in searchable_admins:
-            model = model_admin.model
-            if model._meta.app_label == app_label:
-                content_type = ContentType.objects.get_for_model(model)
-                content_type_ids.append(content_type.id)
+        # Filter models for the specific app
+        app_models = [
+            model_admin.model
+            for model_admin in searchable_admins
+            if model_admin.model._meta.app_label == app_label
+        ]
 
-        return content_type_ids
+        if not app_models:
+            return []
 
-    def _get_apps_data(self, request: HttpRequest, admin_site: AdminSite):
+        # Bulk fetch ContentTypes to avoid N+1 queries
+        content_types = ContentType.objects.get_for_models(*app_models, for_concrete_models=False)
+        return [ct.id for ct in content_types.values()]
+
+    def _get_apps_data(self, request: HttpRequest, searcher: GlobalSearch):
         """Get apps and models data for sidebar."""
-        searcher = GlobalSearch(admin_site)
         searchable_admins = searcher.get_searchable_model_admins(request)
+
+        if not searchable_admins:
+            return {}
+
+        models = [model_admin.model for model_admin in searchable_admins]
+        content_types = ContentType.objects.get_for_models(*models, for_concrete_models=False)
 
         # Build apps data from searchable models
         # {app_label: {"verbose_name": "", "models": []}}
@@ -181,7 +198,7 @@ class GlobalSearchView(View):
             app_label = model._meta.app_label
             app_config = apps.get_app_config(app_label)
 
-            content_type = ContentType.objects.get_for_model(model)
+            content_type = content_types[model]
 
             if not apps_data[app_label]["verbose_name"]:
                 apps_data[app_label]["verbose_name"] = app_config.verbose_name

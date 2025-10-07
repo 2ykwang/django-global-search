@@ -152,9 +152,11 @@ class GlobalSearch:
         self, request: HttpRequest, content_type_ids: list[int] | None = None
     ) -> list[ModelAdmin]:
         """Get list of searchable ModelAdmin instances."""
+        model_admins = list(self.admin_site._registry.values())
+
         return filter_searchable_models(
             request=request,
-            admin_registry=self.admin_site._registry,
+            model_admins=model_admins,
             excluded_models=self.settings.excluded_models,
             content_type_ids=content_type_ids,
         )
