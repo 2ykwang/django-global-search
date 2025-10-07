@@ -26,6 +26,12 @@ classifiers = [
     "Framework :: Django :: 5.2",
     "License :: OSI Approved :: MIT License",
 ]
+[project.urls]
+Homepage = "https://github.com/2ykwang/django-global-search"
+Repository = "https://github.com/2ykwang/django-global-search"
+Documentation = "https://django-global-search.readthedocs.io/en/latest/"
+Issues = "https://github.com/2ykwang/django-global-search/issues"
+
 
 [build-system]
 requires = ["hatchling"]
@@ -42,6 +48,7 @@ dev = [
     "pytest-cov>=7.0.0",
     "factory-boy>=3.3.3",
     "tox>=4.0.0",
+    "pre-commit>=4.0.0",
 ]
 
 [tool.ruff]
@@ -106,7 +113,7 @@ ignore = []
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
-unfixable = [] 
+unfixable = []
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
