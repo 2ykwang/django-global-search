@@ -2,8 +2,13 @@
 
 ## Requirements
 
-- Python 3.9 or higher
-- Django 4.2 or higher
+**Supported Python version**
+
+[![PyPI Python Versions](https://img.shields.io/pypi/pyversions/django-global-search.svg)](https://pypi.python.org/pypi/django-global-search)
+
+**Supported Django version**
+
+[![Supported Django versions](https://img.shields.io/pypi/djversions/django-global-search.svg)](https://pypi.python.org/pypi/django-global-search)
 
 ## Install with uv (Recommended)
 

@@ -1,5 +1,12 @@
 # Django Global Search
- 
+
+[![PyPI Download](https://img.shields.io/pypi/v/django-global-search.svg)](https://pypi.python.org/pypi/django-global-search)
+[![Test](https://github.com/2ykwang/django-global-search/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/2ykwang/django-global-search/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/2ykwang/django-global-search/branch/main/graph/badge.svg?token=0YSa3UCGaU)](https://codecov.io/gh/2ykwang/django-global-search)
+[![PyPI Python Versions](https://img.shields.io/pypi/pyversions/django-global-search.svg)](https://pypi.python.org/pypi/django-global-search)
+[![Supported Django versions](https://img.shields.io/pypi/djversions/django-global-search.svg)](https://pypi.python.org/pypi/django-global-search)
+
+
 A global search extension for Django Admin that allows searching across multiple models from a single page. Search through all registered models with permission handling and respect for existing `search_fields` configurations.
 
 Documentation can be found at https://django-global-search.readthedocs.io/
