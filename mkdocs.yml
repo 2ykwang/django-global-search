@@ -36,6 +36,7 @@ nav:
   - Installation: installation.md
   - Quick Start: quickstart.md
   - Configuration: configuration.md
+  - Changelog: changelog.md
 
 markdown_extensions:
   - admonition
