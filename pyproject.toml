@@ -1,6 +1,6 @@
 [project]
 name = "django-global-search"
-version = "0.1.0"
+version = "0.1.1"
 description = "Global search for Django Admin, search across all registered models with permissions and search_fields support"
 readme = "README.md"
 authors = [
