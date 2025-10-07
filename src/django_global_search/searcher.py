@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import time
 from collections import defaultdict
 from dataclasses import dataclass
@@ -22,6 +23,8 @@ from django_global_search.settings import GlobalSearchAdminSiteSettings
 if TYPE_CHECKING:
     from django.contrib.admin import ModelAdmin
     from django.http import HttpRequest
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -123,6 +126,7 @@ class GlobalSearch:
                     is_timeout=True,
                 )
 
+            model_query_start_time = time.perf_counter()
             model = model_admin.model
             content_type = ContentType.objects.get_for_model(model)
             model_search_result = self._search_model(request, model_admin, content_type, query)
@@ -130,6 +134,12 @@ class GlobalSearch:
             if model_search_result:
                 app_label = model._meta.app_label
                 search_results_by_app_label[app_label].append(model_search_result)
+
+            logger.debug(
+                "model_admin: %s - query elapsed: %s",
+                model_admin,
+                time.perf_counter() - model_query_start_time,
+            )
 
         # Build app results
         app_results = []
@@ -190,16 +200,36 @@ class GlobalSearch:
         if ordering:
             queryset = queryset.order_by(*ordering)
 
-        # Efficient count+slice: fetch N+1 to check has_more
         max_results = self.settings.max_results_per_model
-        results = list(queryset[: max_results + 1])
 
-        if not results:
+        # Fetch only primary keys to check result count efficiently
+        primary_keys = list(queryset.values_list("pk", flat=True)[: max_results + 1])
+
+        if not primary_keys:
             return None
 
-        has_more = len(results) > max_results
+        has_more = len(primary_keys) > max_results
         if has_more:
-            results = results[:max_results]
+            primary_keys = primary_keys[:max_results]
+
+        # Create a mapping to preserve the original search result order
+        pk_to_position = {pk: position for position, pk in enumerate(primary_keys)}
+
+        # Fetch actual instances
+        # - select_related(None): Clear any default select_related, avoid unnecessary JOINs
+        # - order_by(): Clear ordering, sort in Python using pk_to_position
+        optimized_queryset = (
+            model._default_manager.using(queryset.db)
+            .filter(pk__in=primary_keys)
+            .select_related(None)
+            .order_by()
+        )
+
+        # Sort instances to match the original search result order
+        results = sorted(
+            optimized_queryset,
+            key=lambda instance: pk_to_position[instance.pk],
+        )
 
         # Build result items with permission check
         result_items = []
