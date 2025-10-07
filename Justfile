@@ -36,3 +36,18 @@ docs-requirements:
     echo "# Do not edit manually - edit pyproject.toml instead" >> docs/requirements.txt
     uv export --no-hashes >> docs/requirements.txt
 
+# Generate translation message files
+makemessages:
+    cd src/ && django-admin makemessages --add-location=file -a --ignore=__pycache__ --ignore=migrations
+
+# Compile translation message files
+compilemessages:
+    cd src/ && django-admin compilemessages
+
+# Generate and compile translation messages
+i18n: makemessages compilemessages
+
+# Create translation files for a specific language
+create-locale lang:
+    cd src/ && django-admin makemessages --add-location=file -l {{ lang }} --ignore=__pycache__ --ignore=migrations
+
