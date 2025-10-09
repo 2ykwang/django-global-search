@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 import time
 from collections import defaultdict
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
@@ -19,51 +18,13 @@ from django.utils.translation import gettext as _
 from django_global_search.admin import GlobalSearchAdminSiteMixin
 from django_global_search.permissions import filter_searchable_models
 from django_global_search.settings import GlobalSearchAdminSiteSettings
+from django_global_search.types import SearchResult
 
 if TYPE_CHECKING:
     from django.contrib.admin import ModelAdmin
     from django.http import HttpRequest
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass(frozen=True)
-class SearchResultItem:
-    """Search result item."""
-
-    url: str
-    display_text: str
-
-
-@dataclass(frozen=True)
-class ModelSearchResult:
-    """Search results for a specific model."""
-
-    content_type_id: int
-    model_name: str
-    verbose_name: str
-    verbose_name_plural: str
-    items: list[SearchResultItem]
-    has_more: bool
-    changelist_url: str | None = None
-
-
-@dataclass(frozen=True)
-class AppSearchResult:
-    """Search results for an app."""
-
-    app_label: str
-    app_verbose_name: str
-    models: list[ModelSearchResult]
-
-
-@dataclass(frozen=True)
-class GlobalSearchResult:
-    """Global search result container."""
-
-    apps: list[AppSearchResult]
-    elapsed_time_ms: int
-    is_timeout: bool = False
 
 
 class GlobalSearch:
@@ -88,7 +49,7 @@ class GlobalSearch:
         request: HttpRequest,
         query: str,
         content_type_ids: list[int] | None = None,
-    ) -> GlobalSearchResult:
+    ) -> SearchResult.Global:
         """Execute search.
 
         :param request: Request object
@@ -112,21 +73,17 @@ class GlobalSearch:
         model_admins = self.get_searchable_model_admins(request, content_type_ids)
 
         # Group results by app_label
-        search_results_by_app_label: dict[str, list[ModelSearchResult]] = defaultdict(list)
+        search_results_by_app_label: dict[str, list[SearchResult.Model]] = defaultdict(list)
+        is_timeout = False
 
         for model_admin in model_admins:
             # Check timeout
             elapsed = time.perf_counter() - start_time
             if elapsed > timeout_seconds:
-                # Return empty result on timeout for accuracy
-                elapsed_ms = int(elapsed * 1000)
-                return GlobalSearchResult(
-                    apps=[],
-                    elapsed_time_ms=elapsed_ms,
-                    is_timeout=True,
-                )
+                # Break to return partial results collected
+                is_timeout = True
+                break
 
-            model_query_start_time = time.perf_counter()
             model = model_admin.model
             content_type = ContentType.objects.get_for_model(model)
             model_search_result = self._search_model(request, model_admin, content_type, query)
@@ -135,11 +92,11 @@ class GlobalSearch:
                 app_label = model._meta.app_label
                 search_results_by_app_label[app_label].append(model_search_result)
 
-            logger.debug(
-                "model_admin: %s - query elapsed: %s",
-                model_admin,
-                time.perf_counter() - model_query_start_time,
-            )
+                logger.debug(
+                    "model_admin: %s - query elapsed: %dms",
+                    model_admin,
+                    model_search_result.elapsed_time_ms,
+                )
 
         # Build app results
         app_results = []
@@ -147,7 +104,7 @@ class GlobalSearch:
             models = search_results_by_app_label[app_label]
             app_config = apps.get_app_config(app_label)
             app_results.append(
-                AppSearchResult(
+                SearchResult.App(
                     app_label=app_label,
                     app_verbose_name=app_config.verbose_name,
                     models=models,
@@ -156,10 +113,10 @@ class GlobalSearch:
 
         elapsed_ms = int((time.perf_counter() - start_time) * 1000)
 
-        return GlobalSearchResult(
+        return SearchResult.Global(
             apps=app_results,
             elapsed_time_ms=elapsed_ms,
-            is_timeout=False,
+            is_timeout=is_timeout,
         )
 
     def get_searchable_model_admins(
@@ -181,8 +138,9 @@ class GlobalSearch:
         model_admin: ModelAdmin,
         ct: ContentType,
         query: str,
-    ) -> ModelSearchResult | None:
+    ) -> SearchResult.Model | None:
         """Search in a specific model using ModelAdmin's search configuration."""
+        start_time = time.perf_counter()
         model = model_admin.model
 
         # Get base queryset with permissions applied
@@ -240,7 +198,7 @@ class GlobalSearch:
 
             url = self._get_object_url(obj)
             display_text = str(obj)
-            result_items.append(SearchResultItem(url=url, display_text=display_text))
+            result_items.append(SearchResult.Item(url=url, display_text=display_text))
 
         if not result_items:
             return None
@@ -248,7 +206,9 @@ class GlobalSearch:
         # Get changelist URL
         changelist_url = self._get_changelist_url(model_admin, query)
 
-        return ModelSearchResult(
+        elapsed_time_ms = int((time.perf_counter() - start_time) * 1000)
+
+        return SearchResult.Model(
             content_type_id=ct.id,
             model_name=model._meta.model_name,
             verbose_name=str(model._meta.verbose_name),
@@ -256,6 +216,7 @@ class GlobalSearch:
             items=result_items,
             has_more=has_more,
             changelist_url=changelist_url,
+            elapsed_time_ms=elapsed_time_ms,
         )
 
     def _get_object_url(self, obj: Model) -> str:

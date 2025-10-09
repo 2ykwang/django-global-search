@@ -15,7 +15,8 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views import View
 
-from django_global_search.searcher import GlobalSearch, GlobalSearchResult, ModelSearchResult
+from django_global_search.searcher import GlobalSearch
+from django_global_search.types import SearchResult
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,7 @@ class GlobalSearchView(View):
         has_more: bool
         changelist_url: str | None
         items: list[GlobalSearchView.SearchItemContext]
+        elapsed_time_ms: int = 0
 
     @dataclass
     class AppResultContext:
@@ -64,6 +66,7 @@ class GlobalSearchView(View):
         search_results: list[GlobalSearchView.AppResultContext]
         elapsed_time: float | None
         error_message: str | None
+        is_timeout: bool = False
 
     def get(self, request, *args, **kwargs):
         """Handle GET request."""
@@ -93,9 +96,7 @@ class GlobalSearchView(View):
 
                 context.search_results = self._convert_search_results(result)
                 context.elapsed_time = result.elapsed_time_ms / 1000.0
-
-                if result.is_timeout:
-                    context.error_message = _("Search timeout exceeded. Please refine your query.")
+                context.is_timeout = result.is_timeout
 
             except ValueError:
                 logger.exception("Invalid search query: %s", query)
@@ -111,7 +112,7 @@ class GlobalSearchView(View):
         }
         return render(request, self.template_name, template_context)
 
-    def _convert_search_results(self, result: GlobalSearchResult) -> list[AppResultContext]:
+    def _convert_search_results(self, result: SearchResult.Global) -> list[AppResultContext]:
         return [
             self.AppResultContext(
                 app_label=app_result.app_label,
@@ -123,7 +124,7 @@ class GlobalSearchView(View):
             for app_result in result.apps
         ]
 
-    def _convert_model_result(self, model_result: ModelSearchResult) -> ModelResultContext:
+    def _convert_model_result(self, model_result: SearchResult.Model) -> ModelResultContext:
         return self.ModelResultContext(
             content_type_id=model_result.content_type_id,
             model_name=model_result.model_name,
@@ -131,6 +132,7 @@ class GlobalSearchView(View):
             verbose_name_plural=model_result.verbose_name_plural,
             has_more=model_result.has_more,
             changelist_url=model_result.changelist_url,
+            elapsed_time_ms=model_result.elapsed_time_ms,
             items=[
                 self.SearchItemContext(url=item.url, display_text=item.display_text)
                 for item in model_result.items

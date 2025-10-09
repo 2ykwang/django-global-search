@@ -51,6 +51,12 @@
                     {% if elapsed_time %}
                         <span class="elapsed-time">({{ elapsed_time }}s)</span>
                     {% endif %}
+
+                    {% if is_timeout %}
+                        <span class="timeout-badge">
+                            {% trans "Partial results due to timeout" %}
+                        </span>
+                    {% endif %}
                 </div>
 
                 {% if search_results %}
@@ -67,7 +73,12 @@
                             <div class="app-results-content" data-app="{{ app_result.app_label }}">
                                 {% for model_result in app_result.models %}
                                     <div class="model-results">
-                                        <h3>{{ model_result.verbose_name_plural }}</h3>
+                                        <h3>
+                                            {{ model_result.verbose_name_plural }}
+                                            {% if model_result.elapsed_time_ms %}
+                                                <span class="model-timing">{{ model_result.elapsed_time_ms }}ms</span>
+                                            {% endif %}
+                                        </h3>
 
                                                 <ul class="results-list">
                                                     {% for result in model_result.items %}
