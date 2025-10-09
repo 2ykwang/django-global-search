@@ -172,8 +172,14 @@
     margin-top: 60px;
 }
 
-.app-results {
-    margin-bottom: 20px;
+
+.app-results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    background: var(--primary);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .app-results h2 {
@@ -182,6 +188,29 @@
     margin: 0;
     color: var(--body-fg);
     text-transform: uppercase;
+}
+
+.result-toggle-btn {
+    background: none;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px 8px;
+    color: var(--body-quiet-color);
+    transition: transform 0.2s ease;
+}
+
+.result-toggle-btn:hover {
+    color: var(--body-fg);
+}
+
+.app-results-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.app-results-content.is-collapsed {
+    display: none;
 }
 
 .model-results {
