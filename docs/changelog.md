@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2025-10-09
+
+### Added
+
+- Add release GitHub Action ([#13](https://github.com/2ykwang/django-global-search/pull/13))
+- Add demo project for testing django-global-search ([#12](https://github.com/2ykwang/django-global-search/pull/12))
+- Add toggle buttons to collapse/expand app search results ([#11](https://github.com/2ykwang/django-global-search/pull/11))
+
 ## [0.1.1] - 2025-10-08
 
 ### Added
