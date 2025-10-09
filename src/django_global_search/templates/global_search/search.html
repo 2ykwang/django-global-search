@@ -56,31 +56,39 @@
                 {% if search_results %}
                     {% for app_result in search_results %}
                         <div class="module app-results">
-                            <h2>{{ app_result.app_verbose_name }}</h2>
+                            <div class="app-results-header">
+                                <h3>{{ app_result.app_verbose_name }}</h3>
+                                <button type="button"
+                                        class="result-toggle-btn"
+                                        data-app="{{ app_result.app_label }}"
+                                        aria-label="{% trans 'Toggle' %}">▼</button>
+                            </div>
 
-                            {% for model_result in app_result.models %}
-                                <div class="model-results">
-                                    <h3>{{ model_result.verbose_name_plural }}</h3>
+                            <div class="app-results-content" data-app="{{ app_result.app_label }}">
+                                {% for model_result in app_result.models %}
+                                    <div class="model-results">
+                                        <h3>{{ model_result.verbose_name_plural }}</h3>
 
-                                            <ul class="results-list">
-                                                {% for result in model_result.items %}
-                                                    <li class="result-item">
-                                                        <a href="{{ result.url }}" target="_blank">
-                                                            {{ result.display_text }}
-                                                        </a>
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
+                                                <ul class="results-list">
+                                                    {% for result in model_result.items %}
+                                                        <li class="result-item">
+                                                            <a href="{{ result.url }}" target="_blank">
+                                                                {{ result.display_text }}
+                                                            </a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
 
-                                    {% if model_result.has_more and model_result.changelist_url %}
-                                        <div class="more-link">
-                                            <a href="{{ model_result.changelist_url }}" target="_blank">
-                                                {% trans "View all results" %} →
-                                            </a>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            {% endfor %}
+                                        {% if model_result.has_more and model_result.changelist_url %}
+                                            <div class="more-link">
+                                                <a href="{{ model_result.changelist_url }}" target="_blank">
+                                                    {% trans "View all results" %} →
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
                         </div>
                     {% endfor %}
                 {% endif %}

@@ -1,6 +1,7 @@
 const STORAGE_KEYS = {
     COLLAPSED_APPS: 'django_global_search_collapsed_apps',
-    SELECTED_MODELS: 'django_global_search_selected_models'
+    SELECTED_MODELS: 'django_global_search_selected_models',
+    COLLAPSED_RESULTS: 'django_global_search_collapsed_results'
 };
 
 
@@ -55,6 +56,26 @@ const State = {
     getCurrentSelectedModels() {
         return Array.from(document.querySelectorAll('.model-checkbox:checked'))
             .map(cb => parseInt(cb.value, 10));
+    },
+
+    // Search results collapse state
+    getCollapsedResults() {
+        return Storage.get(STORAGE_KEYS.COLLAPSED_RESULTS, {});
+    },
+
+    saveCollapsedResults(collapsedResults) {
+        Storage.set(STORAGE_KEYS.COLLAPSED_RESULTS, collapsedResults);
+    },
+
+    getCurrentCollapsedResults() {
+        const collapsed = {};
+        document.querySelectorAll('.app-results-content').forEach(content => {
+            const app = content.dataset.app;
+            if (content.classList.contains('is-collapsed')) {
+                collapsed[app] = true;
+            }
+        });
+        return collapsed;
     }
 };
 
@@ -84,6 +105,7 @@ class GlobalSearchUI {
     restoreState() {
         this.restoreCollapseState();
         this.restoreSelectionState();
+        this.restoreResultsCollapseState();
     }
 
     restoreCollapseState() {
@@ -96,6 +118,23 @@ class GlobalSearchUI {
 
             if (collapsed[app]) {
                 modelsList.classList.add('is-collapsed');
+                toggleBtn.textContent = '▶';
+            }
+        });
+    }
+
+    restoreResultsCollapseState() {
+        const collapsed = State.getCollapsedResults();
+
+        document.querySelectorAll('.app-results').forEach(appResults => {
+            const toggleBtn = appResults.querySelector('.result-toggle-btn');
+            if (!toggleBtn) return;
+
+            const app = toggleBtn.dataset.app;
+            const content = appResults.querySelector('.app-results-content');
+
+            if (collapsed[app]) {
+                content.classList.add('is-collapsed');
                 toggleBtn.textContent = '▶';
             }
         });
@@ -115,9 +154,24 @@ class GlobalSearchUI {
     }
 
     attachEventListeners() {
-        // Collapse/expand toggle
+        // Collapse/expand toggle (sidebar)
         document.querySelectorAll('.toggle-btn').forEach(btn => {
             btn.addEventListener('click', (e) => this.handleToggle(e));
+        });
+
+        // Collapse/expand toggle (search results)
+        document.querySelectorAll('.result-toggle-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleResultToggle(e));
+        });
+
+        // Click on app-results-header to toggle
+        document.querySelectorAll('.app-results-header').forEach(header => {
+            header.addEventListener('click', (e) => {
+                // Only toggle if clicking on the header itself, not the button
+                if (e.target.classList.contains('result-toggle-btn')) return;
+                const btn = header.querySelector('.result-toggle-btn');
+                if (btn) btn.click();
+            });
         });
 
         // App checkbox (select/deselect all models in app)
@@ -157,6 +211,18 @@ class GlobalSearchUI {
 
         modelsList.classList.toggle('is-collapsed');
         btn.textContent = modelsList.classList.contains('is-collapsed') ? '▶' : '▼';
+    }
+
+    handleResultToggle(e) {
+        e.stopPropagation(); // Prevent header click event
+        const btn = e.target;
+        const content = btn.closest('.app-results').querySelector('.app-results-content');
+
+        content.classList.toggle('is-collapsed');
+        btn.textContent = content.classList.contains('is-collapsed') ? '▶' : '▼';
+
+        // Save state immediately
+        State.saveCollapsedResults(State.getCurrentCollapsedResults());
     }
 
     handleAppCheckbox(e) {
