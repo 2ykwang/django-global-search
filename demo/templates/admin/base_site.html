@@ -1,0 +1,6 @@
+{% extends "admin/base_site.html" %}
+
+{% block userlinks %}
+    {{ block.super }}
+    {% include 'global_search/button.html' %}
+{% endblock %}
