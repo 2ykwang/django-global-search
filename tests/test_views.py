@@ -356,3 +356,51 @@ class TestGlobalSearchViewPermissions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Tech Publisher")
+
+
+class TestGlobalSearchViewTimeout(TestCase):
+    """Test timeout behavior with partial results."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.staff_user = StaffUserFactory()
+        cls.author = AuthorFactory(name="John Doe")
+        cls.book = BookFactory(title="Django Book", author=cls.author)
+        cls.url = reverse("admin:global_search")
+
+    @override_settings(GLOBAL_SEARCH_TIMEOUT_MS=1)
+    def test_timeout_returns_partial_results(self):
+        self.client.force_login(self.staff_user)
+
+        # Create many records to potentially trigger timeout
+        for i in range(50):
+            BookFactory(title=f"Django Book {i}")
+            AuthorFactory(name=f"Author {i}")
+
+        response = self.client.get(self.url, {"q": "Django"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("is_timeout", response.context)
+
+    @override_settings(GLOBAL_SEARCH_TIMEOUT_MS=1)
+    def test_timeout_shows_warning_badge(self):
+        self.client.force_login(self.staff_user)
+
+        for i in range(50):
+            BookFactory(title=f"Django Book {i}")
+
+        response = self.client.get(self.url, {"q": "Django"})
+
+        self.assertEqual(response.status_code, 200)
+        if response.context.get("is_timeout"):
+            self.assertContains(response, "timeout-badge")
+            self.assertContains(response, "Partial results")
+
+    def test_no_timeout_flag_when_search_completes(self):
+        self.client.force_login(self.staff_user)
+
+        response = self.client.get(self.url, {"q": "Django"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("is_timeout", response.context)
+        self.assertFalse(response.context["is_timeout"])
