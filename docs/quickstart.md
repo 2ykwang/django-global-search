@@ -18,8 +18,8 @@ uv add django-global-search
 ```python
 # settings.py
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django_global_search',  # Add this line
+    "django.contrib.admin",
+    "django_global_search",  # Add this line
     # ... other apps
 ]
 ```
@@ -56,9 +56,9 @@ This adds a "Global Search" button next to the user links in the admin header.
     ```python
     TEMPLATES = [
         {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [BASE_DIR / 'templates'],  # Add this
-            'APP_DIRS': True,
+            "BACKEND": "django.template.backends.django.DjangoTemplates",
+            "DIRS": [BASE_DIR / "templates"],  # Add this
+            "APP_DIRS": True,
             # ...
         },
     ]
@@ -82,15 +82,17 @@ Django Global Search automatically includes all models that:
 from django.contrib import admin
 from .models import Article, Author
 
+
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    search_fields = ['title', 'content', 'author__name']
-    list_display = ['title', 'author', 'published_date']
+    search_fields = ["title", "content", "author__name"]
+    list_display = ["title", "author", "published_date"]
+
 
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
-    search_fields = ['name', 'email', 'bio']
-    list_display = ['name', 'email']
+    search_fields = ["name", "email", "bio"]
+    list_display = ["name", "email"]
 ```
 
 With the above configuration, global search will automatically search across both `Article` and `Author` models using their respective `search_fields`.

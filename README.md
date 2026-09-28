@@ -32,8 +32,8 @@ uv add django-global-search
 ```python
 # settings.py
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django_global_search',  # Add after admin
+    "django.contrib.admin",
+    "django_global_search",  # Add after admin
     # ... other apps
 ]
 ```
@@ -60,11 +60,13 @@ If you're using a custom admin site class, you can explicitly inherit from the m
 from django.contrib.admin import AdminSite
 from django_global_search.admin import GlobalSearchAdminSiteMixin
 
+
 class MyAdminSite(GlobalSearchAdminSiteMixin, AdminSite):
     site_header = "My Custom Admin"
 
+
 # Replace the default admin site
-admin_site = MyAdminSite(name='myadmin')
+admin_site = MyAdminSite(name="myadmin")
 ```
 
 ## Screenshots
